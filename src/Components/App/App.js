@@ -4,27 +4,19 @@ import "./App.css";
 import SearchBar from "../SearchBar/SearchBar";
 import SearchResults from "../SearchResults/SearchResults";
 import Playlist from "../Playlist/Playlist";
+import Spotify from '../../util/Spotify';
+
 
 class App extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			//changed this from 'SearchResults' to 'searchResults'
-			searchResults: [
-				{ name: "search result 1", artist: "artist1", album: "album1", id: 1 },
-				{ name: "search result 1", artist: "artist2", album: "album2", id: 2 },
-				{ name: "search result 1", artist: "artist3", album: "album3", id: 3 },
-			],
-
-			playlistName: 'My Playlist',
-			//you didn't have a state created for playlistTracks
-			playlistTracks: [
-				{ name: "playlist track 1", artist: "artist1", album: "album1", id: 1 },
-				{ name: "playlist track 2", artist: "artist2", album: "album2", id: 2 },
-				{ name: "playlist track 3", artist: "artist3", album: "album3", id: 3 },
-			],
-		};
+			searchResults: [],
+			playlistName: 'playListName1',
+			playlistTracks: []      
+		  };
+		  
 		this.addTrack = this.addTrack.bind(this);
 		this.removeTrack = this.removeTrack.bind(this);
 		this.updatePlaylistName = this.updatePlaylistName.bind(this);
@@ -51,16 +43,21 @@ class App extends React.Component {
 
 		  }
 
-		savePlaylist() {
-			let tracksUri = this.state.playlistTracks.map(track => track.uri);
-			Spotify.savePlaylist(this.state.playlistName, tracksUri);
+		  savePlaylist() {
+			const trackURIs = this.state.playlistTracks.map(track => track.uri);
+			Spotify.savePlaylist(this.state.playlistName, trackURIs).then(() => {
+			  this.setState({
+				  playListName: 'New Playlist',
+				  playlistTracks: []
+				});
+			})    
 		  }
 
-		async search(term) {
-			Spotify.getAccessToken();
-			let searchResults = await Spotify.search(term);
-			this.setState({searchResults: searchResults});
-		  }
+		search(term) {
+			Spotify.search (term).then (searchResults => {
+			this.setState({searchResults: searchResults})
+		  })
+		}
 
 	render() {
 		return (
