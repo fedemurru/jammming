@@ -22,7 +22,72 @@ if (accessTokenMatch && expiresInMatch) {
     const accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectURI}`;
     window.location = accessUrl;
 }
+},
+
+search(Term) {
+    let spotifyTracks = fetch(
+      `https://api.spotify.com/v1/search?type=track&q=${Term}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    )
+      .then((response) => response.json())
+      .then((jsonResponse) => {
+        if (!jsonResponse) {
+          return [];
+        }
+
+        let tracks = jsonResponse.tracks.items.map((track) => ({
+          id: track.id,
+          name: track.name,
+          artist: track.artists[0].name,
+          album: track.album.name,
+          uri: track.uri,
+        }));
+
+        return tracks;
+      })
+      .catch((error) => {
+        console.log("Spotify search error");
+      });
+
+    return spotifyTracks;
+  },
+
+  savePlaylist(name, trackUri) {
+    if (!name || trackUri.length) return;
+
+    // Get spotify user Id
+    const accessToken = Spotify.getAccessToken();
+    const headers = { Auhorization: `Bearer ${accessToken}`};
+    let userId;
+    return fetch ('https://api.spotify.com/vl/me', { headers: headers })    }
+  
 }
-}
+.then((response) => response.json())
+.then((jsonResponse) => jsonResponse.id)
+.catch((error) => {
+    userld = jsonResponse.id;
+    return fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, 
+            {
+                headers: headers,   
+                method: 'POST',
+                body: JSON.stringify({name: name})
+            }).then(response => response.json()
+            ).then(jsonResponse => {
+                const playlistID = jsonResponse.id;
+                // Add tracks to playList
+                return fetch(`https://api.spotify.com/v1/playlists/${playlistID}/tracks`, {
+                    headers: headers,
+                    method: 'POST',
+                    body: JSON.stringify({uris: uRIs})
+                })
+            })
+            
+        })
+    
+
+
+    
 
 export default Spotify;
